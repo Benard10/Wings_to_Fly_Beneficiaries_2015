@@ -66,28 +66,32 @@
             padding: 6px 4px !important;
         }
         #overviewBox {
-            bottom: 110px !important;
+            bottom: 120px !important; /* move up to avoid opacity tool */
         }
         #dataTableBox {
-            bottom: 60px !important;
+            bottom: 70px !important; /* move up to avoid opacity tool */
         }
         #opacityToolBox {
             left: 50% !important;
             transform: translateX(-50%) !important;
-            bottom: 5px !important;
-            width: 95vw !important;
-            max-width: 95vw !important;
+            bottom: 10px !important;
+            width: 94vw !important;
+            max-width: 94vw !important;
             font-size: 0.9em !important;
-            padding: 6px 4px !important;
+            padding: 5px 2px !important;
+            z-index: 1400 !important;
         }
         table {
             font-size: 0.95em !important;
         }
     }
-    /* Make sure panels scroll if content overflows */
     #legendContainer, #overviewBox, #dataTableBox {
         overflow-y: auto;
         max-height: 60vh;
+    }
+    /* Add a little shadow to floating panels for visibility */
+    #legendContainer, #overviewBox, #dataTableBox, #opacityToolBox {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.13);
     }
 </style>
     </head>
