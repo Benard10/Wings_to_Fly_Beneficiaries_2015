@@ -40,8 +40,25 @@
     </head>
     <body>
         <div class="map-title">Wings to Fly Beneficiaries 2015</div>
-        <div id="map">
-        </div>
+        <div id="map"></div>
+        <!-- Legend Toggle Button -->
+        <button id="toggleLegendBtn" style="
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1300;
+            background: #49648036;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.95em;
+            font-family: 'Open Sans', Arial, sans-serif;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.13);
+        ">Show Legend</button>
+        <!-- Legend Container -->
+        <div id="legendContainer" style="position: absolute; top: 60px; right: 20px; z-index: 1200;"></div>
         <script src="js/web_label_expressions.js"></script>
         <script src="js/leaflet.js"></script>
         <script src="js/L.Control.Layers.Tree.min.js"></script>
@@ -304,13 +321,50 @@
         .className += ' fa fa-search';
         document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
         .title += 'Search for a place';
-        var overlaysTree = [
+        // Define basemaps
+var osmMapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+});
+var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    attribution: '© Google Satellite'
+});
+var googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    attribution: '© Google Hybrid'
+});
+// Add OSM as default
+osmMapnik.addTo(map);
+
+// Build overlaysTree for the legend (keep your province overlays as before)
+var baseTree = [
+    {label: 'OpenStreetMap.Mapnik', layer: osmMapnik, name: 'OpenStreetMap.Mapnik'},
+    {label: 'Google Satellite', layer: googleSat, name: 'Google Satellite'},
+    {label: 'Google Hybrid', layer: googleHybrid, name: 'Google Hybrid'}
+];
+var overlaysTree = [
             {label: 'Wings_to_Fly_Beneficiaries_2015<br /><table><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Central0.png" /></td><td>Central</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Coast1.png" /></td><td>Coast</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Eastern2.png" /></td><td>Eastern</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Nairobi3.png" /></td><td>Nairobi</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_NorthEastern4.png" /></td><td>North Eastern</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Nyanza5.png" /></td><td>Nyanza</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Riftvalley6.png" /></td><td>Rift valley</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Western7.png" /></td><td>Western</td></tr></table>', layer: layer_Wings_to_Fly_Beneficiaries_2015_0},]
-        var lay = L.control.layers.tree(null, overlaysTree,{
-            
-            collapsed: false, 
-        });
+        var lay = L.control.layers.tree(baseTree, overlaysTree, {collapsed: false});
         lay.addTo(map);
+        // Move the layers control to the custom legend container
+        var legendContainer = document.getElementById('legendContainer');
+        var leafletLayersControl = document.querySelector('.leaflet-control-layers');
+        if (legendContainer && leafletLayersControl) {
+            legendContainer.appendChild(leafletLayersControl);
+        }
+        // Hide legend by default
+        legendContainer.style.display = 'none';
+        var toggleLegendBtn = document.getElementById('toggleLegendBtn');
+        toggleLegendBtn.addEventListener('click', function() {
+            if (legendContainer.style.display === 'none') {
+                legendContainer.style.display = 'block';
+                toggleLegendBtn.textContent = 'Hide Legend';
+            } else {
+                legendContainer.style.display = 'none';
+                toggleLegendBtn.textContent = 'Show Legend';
+            }
+        });
         document.addEventListener("DOMContentLoaded", function() {
             
             function newLayersListHeight() {
@@ -457,10 +511,47 @@ document.getElementById('legend-central').addEventListener('click', function() {
     ">
         Show Data Table
     </button>
+    <div id="dataTableBox" style="
+        position: absolute;
+        bottom: 35px;
+        right: 18px;
+        z-index: 1200;
+        background: rgba(255, 255, 255, 0.74);
+        border-radius: 8px;
+        padding: 8px 10px;
+        max-width: 340px;
+        font-size: 0.88em;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0);
+        font-family: 'Open Sans', Arial, sans-serif;
+        overflow-x: auto;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+    ">
+        <strong style="font-size:1em;">Beneficiaries by Province</strong>
+        <table style="width:100%;margin-top:10px;border-collapse:collapse;">
+            <thead>
+            <tr style="background:#e6e6e6;">
+            <th style="padding:4px 8px;">Province</th>
+            <th style="padding:4px 8px; text-align:center;">Beneficiaries</th>
+            <th style="padding:4px 8px; text-align:center;">Percentage</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr><td>Rift Valley</td><td style="text-align:center;">2,164</td><td style="text-align:center;">25.36%</td></tr>
+            <tr><td>Central</td><td style="text-align:center;">1,785</td><td style="text-align:center;">20.92%</td></tr>
+            <tr><td>Eastern</td><td style="text-align:center;">1,301</td><td style="text-align:center;">15.25%</td></tr>
+            <tr><td>Coast</td><td style="text-align:center;">817</td><td style="text-align:center;">9.58%</td></tr>
+            <tr><td>Nyanza</td><td style="text-align:center;">797</td><td style="text-align:center;">9.34%</td></tr>
+            <tr><td>Nairobi</td><td style="text-align:center;">725</td><td style="text-align:center;">8.50%</td></tr>
+            <tr><td>Western</td><td style="text-align:center;">633</td><td style="text-align:center;">7.42%</td></tr>
+            <tr><td>North Eastern</td><td style="text-align:center;">310</td><td style="text-align:center;">3.63%</td></tr>
+            </tbody>
+        </table>
+    </div>
     <script>
-        
         document.addEventListener("DOMContentLoaded", function() {
-            var tableDiv = document.querySelector('div[style*="right: 18px"]') || document.querySelector('div[style*="right: 20px"]');
+            var tableDiv = document.getElementById('dataTableBox');
             var toggleBtn = document.getElementById('toggleTableBtn');
             if (tableDiv && toggleBtn) {
                 tableDiv.style.display = 'none';
@@ -476,72 +567,52 @@ document.getElementById('legend-central').addEventListener('click', function() {
             }
         });
     </script>
-    <div style="
-        position: absolute;
-        bottom: 35px;
-        right: 18px;
-        z-index: 1200;
-        background: rgba(255,255,255,0.97);
-        border-radius: 8px;
-        padding: 8px 10px;
-        max-width: 320px;
-        font-size: 0.88em;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.13);
-        font-family: 'Open Sans', Arial, sans-serif;
-        overflow-x: auto;
-    ">
-        <strong style="font-size:1em;">Wings to Fly Beneficiaries 2015 (by Province)</strong>
-        <table style="width:100%; border-collapse:collapse; margin-top:8px;">
-            <thead>
-            <tr style="background:#e3eaf2;">
-                <th style="padding:6px 4px; border-bottom:1px solid #bfc9d1; text-align:left;">Province</th>
-                <th style="padding:6px 4px; border-bottom:1px solid #bfc9d1; text-align:right;">Beneficiaries</th>
-                <th style="padding:6px 4px; border-bottom:1px solid #bfc9d1; text-align:right;">Percentage</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td style="padding:4px 4px; border-bottom:1px solid #f0f0f0;">Rift Valley</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">2,164</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">25.36%</td>
-            </tr>
-            <tr style="background:#f7fafc;">
-                <td style="padding:4px 4px; border-bottom:1px solid #f0f0f0;">Central</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">1,785</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">20.92%</td>
-            </tr>
-            <tr>
-                <td style="padding:4px 4px; border-bottom:1px solid #f0f0f0;">Eastern</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">1,301</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">15.25%</td>
-            </tr>
-            <tr style="background:#f7fafc;">
-                <td style="padding:4px 4px; border-bottom:1px solid #f0f0f0;">Coast</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">817</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">9.58%</td>
-            </tr>
-            <tr>
-                <td style="padding:4px 4px; border-bottom:1px solid #f0f0f0;">Nyanza</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">797</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">9.34%</td>
-            </tr>
-            <tr style="background:#f7fafc;">
-                <td style="padding:4px 4px; border-bottom:1px solid #f0f0f0;">Nairobi</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">725</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">8.50%</td>
-            </tr>
-            <tr>
-                <td style="padding:4px 4px; border-bottom:1px solid #f0f0f0;">Western</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">633</td>
-                <td style="padding:4px 4px; text-align:right; border-bottom:1px solid #f0f0f0;">7.42%</td>
-            </tr>
-            <tr style="background:#f7fafc;">
-                <td style="padding:4px 4px;">North Eastern</td>
-                <td style="padding:4px 4px; text-align:right;">310</td>
-                <td style="padding:4px 4px; text-align:right;">3.63%</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <!-- Opacity Tool UI: Centered at Bottom -->
+<div id="opacityToolBox" style="
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    z-index: 1300;
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+">
+    <label for="layerOpacityRange" style="margin:0 6px 0 0;"><b>Layer Opacity:</b></label>
+    <input type="range" id="layerOpacityRange" min="0" max="1" step="0.01" value="0.5" style="vertical-align:middle; margin:0 8px;">
+    <span id="layerOpacityValue">0.50</span>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var range = document.getElementById('layerOpacityRange');
+        var value = document.getElementById('layerOpacityValue');
+        if (range && value) {
+            // Set initial opacity to 0.5 on load
+            if (window.layer_Wings_to_Fly_Beneficiaries_2015_0) {
+                window.layer_Wings_to_Fly_Beneficiaries_2015_0.setStyle({opacity: 0.5, fillOpacity: 0.5});
+            } else {
+                // If layer not yet loaded, set after short delay
+                setTimeout(function() {
+                    if (window.layer_Wings_to_Fly_Beneficiaries_2015_0) {
+                        window.layer_Wings_to_Fly_Beneficiaries_2015_0.setStyle({opacity: 0.5, fillOpacity: 0.5});
+                    }
+                }, 500);
+            }
+            range.addEventListener('input', function() {
+                var v = parseFloat(range.value);
+                value.textContent = v.toFixed(2);
+                if (window.layer_Wings_to_Fly_Beneficiaries_2015_0) {
+                    window.layer_Wings_to_Fly_Beneficiaries_2015_0.setStyle({opacity: v, fillOpacity: v});
+                }
+            });
+        }
+    });
+</script>
     </body>
 </html>
