@@ -337,7 +337,7 @@ var googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={
 // Add OSM as default
 osmMapnik.addTo(map);
 
-// Build overlaysTree for the legend (keep your province overlays as before)
+// Define the base tree and overlays tree for the layer control
 var baseTree = [
     {label: 'OpenStreetMap.Mapnik', layer: osmMapnik, name: 'OpenStreetMap.Mapnik'},
     {label: 'Google Satellite', layer: googleSat, name: 'Google Satellite'},
@@ -347,13 +347,13 @@ var overlaysTree = [
             {label: 'Wings_to_Fly_Beneficiaries_2015<br /><table><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Central0.png" /></td><td>Central</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Coast1.png" /></td><td>Coast</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Eastern2.png" /></td><td>Eastern</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Nairobi3.png" /></td><td>Nairobi</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_NorthEastern4.png" /></td><td>North Eastern</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Nyanza5.png" /></td><td>Nyanza</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Riftvalley6.png" /></td><td>Rift valley</td></tr><tr><td style="text-align: center;"><img src="legend/Wings_to_Fly_Beneficiaries_2015_0_Western7.png" /></td><td>Western</td></tr></table>', layer: layer_Wings_to_Fly_Beneficiaries_2015_0},]
         var lay = L.control.layers.tree(baseTree, overlaysTree, {collapsed: false});
         lay.addTo(map);
-        // Move the layers control to the custom legend container
+        
         var legendContainer = document.getElementById('legendContainer');
         var leafletLayersControl = document.querySelector('.leaflet-control-layers');
         if (legendContainer && leafletLayersControl) {
             legendContainer.appendChild(leafletLayersControl);
         }
-        // Hide legend by default
+        
         legendContainer.style.display = 'none';
         var toggleLegendBtn = document.getElementById('toggleLegendBtn');
         toggleLegendBtn.addEventListener('click', function() {
@@ -439,7 +439,7 @@ var overlaysTree = [
         map.on("layerremove", function(){
             resetLabels([layer_Wings_to_Fly_Beneficiaries_2015_0]);
         });
-        // Example: Toggle Central layer
+       
 document.getElementById('legend-central').addEventListener('click', function() {
     if (map.hasLayer(layer_Central)) {
         map.removeLayer(layer_Central);
@@ -593,11 +593,11 @@ document.getElementById('legend-central').addEventListener('click', function() {
         var range = document.getElementById('layerOpacityRange');
         var value = document.getElementById('layerOpacityValue');
         if (range && value) {
-            // Set initial opacity to 0.5 on load
+            // opacity to 0.5 on load
             if (window.layer_Wings_to_Fly_Beneficiaries_2015_0) {
                 window.layer_Wings_to_Fly_Beneficiaries_2015_0.setStyle({opacity: 0.5, fillOpacity: 0.5});
             } else {
-                // If layer not yet loaded, set after short delay
+                
                 setTimeout(function() {
                     if (window.layer_Wings_to_Fly_Beneficiaries_2015_0) {
                         window.layer_Wings_to_Fly_Beneficiaries_2015_0.setStyle({opacity: 0.5, fillOpacity: 0.5});
